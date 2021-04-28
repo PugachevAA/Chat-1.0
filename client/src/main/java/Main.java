@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Client extends Application {
+public class Main extends Application {
     static Stage mainStage;
     Parent root;
     static FXMLLoader loader;
@@ -14,8 +14,6 @@ public class Client extends Application {
     public void start(Stage primaryStage) throws Exception {
         mainStage = primaryStage;
         loader = new FXMLLoader(ClassLoader.getSystemResource("chatWindow.fxml"));
-        //loader = new FXMLLoader(ClassLoader.getSystemResource("chatWindow.fxml"));
-        //loader.load(getClass().getResource("chatWindow.fxml"));
         root = (Parent) loader.load();
         primaryStage.setTitle("WhatAf*cksApp");
         primaryStage.setScene(new Scene(root, 420,460));
@@ -24,8 +22,8 @@ public class Client extends Application {
         primaryStage.show();
 
         Connection connection = new Connection();
-        //connection.connect();
     }
+    //public static void main(String[] args) { launch(args); }
 
     public static FXMLLoader getLoader() {
         return loader;
