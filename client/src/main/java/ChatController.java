@@ -19,7 +19,11 @@ public class ChatController {
     public void sendAction(ActionEvent actionEvent) {
         if (!messageTextField.getText().trim().isEmpty()) {
             dt = new Date();
-            Connection.setOut(messageTextField.getText());
+            if (messageTextField.getText().equals("/connect")) {
+                new Connection();
+            } else {
+                Connection.setOut(messageTextField.getText());
+            }
             messageTextField.clear();
             messageTextField.requestFocus();
         }

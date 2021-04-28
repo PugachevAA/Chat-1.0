@@ -11,6 +11,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String name = "";
+    private boolean isAuth = false;
 
     public ClientHandler(ChatSrv server, Socket socket) {
         try {
@@ -18,6 +19,7 @@ public class ClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
+
             new Thread(() -> {
                 try {
                     auth();
@@ -25,6 +27,7 @@ public class ClientHandler {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
+                    System.out.println("Клиент отключился");
                     closeConnection();
                 }
             }).start();
@@ -35,7 +38,17 @@ public class ClientHandler {
     }
 
     private void auth() throws IOException {
-        while (true) {
+        while (!isAuth) {
+            new Thread(() -> {
+                long connectTime = System.currentTimeMillis();
+                while (!isAuth) {
+                    if (System.currentTimeMillis() - connectTime > 120000) {
+                        System.out.println("Вышвырнули");
+                        sendMsg("/end");
+                        return;
+                    }
+                }
+            }).start();
             String str = in.readUTF();
             // /auth login1 pass1
             if (str.startsWith("/auth")) {
@@ -49,6 +62,7 @@ public class ClientHandler {
                         name = nick;
                         server.broadcastMsg(name + " зашел в чат");
                         server.subscribe(this);
+                        isAuth = true;
                         return;
                     } else {
                         sendMsg("УЗ используется");
@@ -75,7 +89,14 @@ public class ClientHandler {
                 System.out.println("Для " + nameTo);
                 if (server.isNickBysy(nameTo)) {
                     System.out.println("Отправлено");
-                    server.personalMsg(nameTo, "(Лично)" + name + ": " + msg);
+                    if (nameTo.equals(name)) {
+                        server.personalMsg(name,"Вы пытаетесь отправить сообщение себе");
+                    } else {
+                        server.personalMsg(nameTo, "(Лично)" + name + ": " + msg);
+                        server.personalMsg(name, "(Лично для " + name + "): " + msg);
+                    }
+                }  else {
+                    server.personalMsg(name, "Пользователь не найден");
                 }
             } else {
                 System.out.println("от " + name + ": " + strFromClient);

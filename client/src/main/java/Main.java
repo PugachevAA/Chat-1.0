@@ -21,7 +21,8 @@ public class Main extends Application {
         primaryStage.setMinHeight(460);
         primaryStage.show();
 
-        Connection connection = new Connection();
+        //Connection connection = new Connection();
+        new Connection();
     }
     //public static void main(String[] args) { launch(args); }
 

@@ -26,6 +26,7 @@ public class Connection {
         out = new DataOutputStream(socket.getOutputStream());
         FXMLLoader loader = Main.getLoader();
         ChatController chatController = (ChatController) loader.getController();
+        chatController.setMessage("Соединение с сервером установлено");
 
         new Thread(new Runnable() {
             @Override
@@ -39,6 +40,7 @@ public class Connection {
                         chatController.setMessage(strFromServer.toString());
                     }
                 } catch (Exception e) {
+                    chatController.setMessage("Cоединение разорвано сервером. \nДля повторного подключения введите /connect");
                     e.printStackTrace();
                 }
             }
