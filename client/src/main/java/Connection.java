@@ -1,5 +1,3 @@
-
-import javafx.scene.Parent;
 import javafx.stage.WindowEvent;
 import javafx.event.EventHandler;
 import java.io.DataInputStream;
@@ -16,18 +14,19 @@ public class Connection {
     public Connection() {
         try {
             connect();
+            addCloseListener();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
     private static void connect() throws IOException {
         socket = new Socket(Config.SERVER_IP, Config.SERVER_PORT);
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
-        FXMLLoader loader = Client.getLoader();
+        FXMLLoader loader = Main.getLoader();
         ChatController chatController = (ChatController) loader.getController();
+        chatController.setMessage("Соединение с сервером установлено");
 
         new Thread(new Runnable() {
             @Override
@@ -41,6 +40,7 @@ public class Connection {
                         chatController.setMessage(strFromServer.toString());
                     }
                 } catch (Exception e) {
+                    chatController.setMessage("Cоединение разорвано сервером. \nДля повторного подключения введите /connect");
                     e.printStackTrace();
                 }
             }
@@ -48,8 +48,8 @@ public class Connection {
     }
 
     private void addCloseListener() {
-        EventHandler<WindowEvent> onCloseRequest = Client.mainStage.getOnCloseRequest();
-        Client.mainStage.setOnCloseRequest(event -> {
+        EventHandler<WindowEvent> onCloseRequest = Main.mainStage.getOnCloseRequest();
+        Main.mainStage.setOnCloseRequest(event -> {
             disconnect();
             if (onCloseRequest != null) {
                 onCloseRequest.handle(event);

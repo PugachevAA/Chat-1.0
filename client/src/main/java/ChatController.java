@@ -19,8 +19,11 @@ public class ChatController {
     public void sendAction(ActionEvent actionEvent) {
         if (!messageTextField.getText().trim().isEmpty()) {
             dt = new Date();
-            chatTextArea.appendText(dateFormatter.format(dt) + " Client: " + messageTextField.getText()+"\n");
-            Connection.setOut(messageTextField.getText());
+            if (messageTextField.getText().equals("/connect")) {
+                new Connection();
+            } else {
+                Connection.setOut(messageTextField.getText());
+            }
             messageTextField.clear();
             messageTextField.requestFocus();
         }
@@ -28,7 +31,7 @@ public class ChatController {
 
     public void setMessage(String s) {
         dt = new Date();
-        chatTextArea.appendText(dateFormatter.format(dt) + " Server: " + s +"\n");
+        chatTextArea.appendText(dateFormatter.format(dt) + " " + s +"\n");
     }
 
 }
