@@ -3,15 +3,19 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatSrv {
     private List<ClientHandler> clients;
     private AuthService authService;
+    //Connection sqlConnection;
 
     public ChatSrv() {
         try(ServerSocket server = new ServerSocket(Config.PORT)) {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             authService = new BaseAuthService();
             authService.start();
             clients = new ArrayList<>();
@@ -21,7 +25,7 @@ public class ChatSrv {
                 System.out.println("Клиент подключился");
                 new ClientHandler(this, socket);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (authService != null) {

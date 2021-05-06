@@ -11,6 +11,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String name = "";
+    private String login = "";
     private boolean isAuth = false;
 
     public ClientHandler(ChatSrv server, Socket socket) {
@@ -43,6 +44,7 @@ public class ClientHandler {
                 long connectTime = System.currentTimeMillis();
                 while (!isAuth) {
                     if (System.currentTimeMillis() - connectTime > 120000) {
+                        if (isAuth) return;
                         System.out.println("Вышвырнули");
                         sendMsg("/end");
                         return;
@@ -56,10 +58,12 @@ public class ClientHandler {
                 String login = parts[1];
                 String password = parts[2];
                 String nick = server.getAuthService().getNickByLoginPass(login, password);
+
                 if (nick != null) {
                     if (!server.isNickBysy(nick)) {
                         sendMsg("/authOk " + nick);
                         name = nick;
+                        this.login = login;
                         server.broadcastMsg(name + " зашел в чат");
                         server.subscribe(this);
                         isAuth = true;
@@ -81,6 +85,8 @@ public class ClientHandler {
         while (true) {
 
             String strFromClient = in.readUTF();
+
+
             if (strFromClient.startsWith("/w")) {
                 System.out.println("Персональное сообщение");
                 String[] parts = strFromClient.split(" ", 3);
@@ -98,13 +104,27 @@ public class ClientHandler {
                 }  else {
                     server.personalMsg(name, "Пользователь не найден");
                 }
+            } else if (strFromClient.startsWith("/rename")) {
+                if (isAuth) {
+                    String[] parts = strFromClient.split(" ", 2);
+                    String newName = parts[1];
+                    boolean isOk = server.getAuthService().rename(newName, login);
+                    if (isOk) {
+                        server.broadcastMsg(name + " сменил ник на " + newName);
+                        name = newName;
+                    } else {
+                        server.personalMsg(name, "Ошибка смены никнэйма");
+                    }
+                }
             } else {
                 System.out.println("от " + name + ": " + strFromClient);
                 server.broadcastMsg(name + ": " + strFromClient);
             }
+
             if (strFromClient.equals("/end")) {
                 return;
             }
+
         }
     }
 
