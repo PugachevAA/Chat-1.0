@@ -1,17 +1,13 @@
 package server;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChatSrv {
     private List<ClientHandler> clients;
     private AuthService authService;
-    //Connection sqlConnection;
 
     public ChatSrv() {
         try(ServerSocket server = new ServerSocket(Config.PORT)) {

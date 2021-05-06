@@ -2,17 +2,12 @@ package server;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BaseAuthService implements AuthService{
-    Map<String, User> users;
     @Override
     public void start() {
-        //users = new HashMap<>();
-
+        System.out.println("Сервис запущен");
     }
 
     @Override
@@ -22,7 +17,6 @@ public class BaseAuthService implements AuthService{
         while (true) {
             try {
                 if (!sqlUsers.next() && sqlUsers.getString(0) != null) break;
-        //        users.put(sqlUsers.getString("login"), new User(sqlUsers.getString("login"),sqlUsers.getString("pass"),sqlUsers.getString("nickname")));
                 if (sqlUsers.getString("pass").equals(password)) {
                     return sqlUsers.getString("nickname");
                 }
@@ -31,10 +25,6 @@ public class BaseAuthService implements AuthService{
             }
         }
         DB.closeConnection();
-        //User user = users.get(login);
-        //if (user != null && user.getPassword().equals(password)) {
-        //    return user.getNick();
-       // }
         return null;
     }
 
