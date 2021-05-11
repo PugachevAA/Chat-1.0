@@ -16,7 +16,8 @@ public class BaseAuthService implements AuthService{
         ResultSet sqlUsers = DB.read("select * from `users` where `login` = '" + login + "'");
         while (true) {
             try {
-                if (!sqlUsers.next() && sqlUsers.getString(0) != null) break;
+                if (!sqlUsers.next()) break;
+                //if (sqlUsers.getString(1) != null) break;
                 if (sqlUsers.getString("pass").equals(password)) {
                     return sqlUsers.getString("nickname");
                 }

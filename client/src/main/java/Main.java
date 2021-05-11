@@ -3,11 +3,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import log.ChatLog;
 
 public class Main extends Application {
     static Stage mainStage;
     Parent root;
     static FXMLLoader loader;
+    static User user = new User();
+    static ChatLog chatLog = new ChatLog();
 
 
     @Override
@@ -21,12 +24,11 @@ public class Main extends Application {
         primaryStage.setMinHeight(460);
         primaryStage.show();
 
-        //Connection connection = new Connection();
         new Connection();
     }
-    //public static void main(String[] args) { launch(args); }
 
     public static FXMLLoader getLoader() {
         return loader;
     }
+
 }

@@ -22,6 +22,10 @@ public class ChatController {
             if (messageTextField.getText().equals("/connect")) {
                 new Connection();
             } else {
+                if (messageTextField.getText().startsWith("/auth")) {
+                    String userLogin[] = messageTextField.getText().split(" ", 3);
+                    Main.user.setLogin(userLogin[1]);
+                }
                 Connection.setOut(messageTextField.getText());
             }
             messageTextField.clear();
@@ -32,6 +36,12 @@ public class ChatController {
     public void setMessage(String s) {
         dt = new Date();
         chatTextArea.appendText(dateFormatter.format(dt) + " " + s +"\n");
+        if (Main.user.isAuth()) {
+            Main.chatLog.writeLogMsg(dateFormatter.format(dt) + " " + s);
+        }
+    }
+    public void setLog(String s) {
+        chatTextArea.appendText(s + "\n");
     }
 
 }
