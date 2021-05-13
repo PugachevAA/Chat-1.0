@@ -20,8 +20,8 @@ public class ClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-
-            new Thread(() -> {
+            server.getService().execute(() -> {
+                //new Thread(() -> {
                 try {
                     auth();
                     readMsg();
@@ -31,7 +31,8 @@ public class ClientHandler {
                     System.out.println("Клиент отключился");
                     closeConnection();
                 }
-            }).start();
+                //}).start();
+            });
         } catch (IOException e) {
             System.out.println("Проблема при создании обработчика");
             e.printStackTrace();
@@ -40,7 +41,8 @@ public class ClientHandler {
 
     private void auth() throws IOException {
         while (!isAuth) {
-            new Thread(() -> {
+            server.getService().execute(() -> {
+            //new Thread(() -> {
                 long connectTime = System.currentTimeMillis();
                 while (!isAuth) {
                     if (System.currentTimeMillis() - connectTime > 120000) {
@@ -50,7 +52,8 @@ public class ClientHandler {
                         return;
                     }
                 }
-            }).start();
+            //}).start();
+            });
             String str = in.readUTF();
             // /auth login1 pass1
             if (str.startsWith("/auth")) {

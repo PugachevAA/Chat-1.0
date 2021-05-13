@@ -4,10 +4,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatSrv {
     private List<ClientHandler> clients;
     private AuthService authService;
+    private ExecutorService service = Executors.newFixedThreadPool(10);
 
     public ChatSrv() {
         try(ServerSocket server = new ServerSocket(Config.PORT)) {
@@ -26,6 +29,7 @@ public class ChatSrv {
         } finally {
             if (authService != null) {
                 authService.stop();
+                service.shutdown();
             }
         }
     }
@@ -65,6 +69,10 @@ public class ChatSrv {
             }
         }
         return false;
+    }
+
+    public ExecutorService getService() {
+        return service;
     }
 
 }
