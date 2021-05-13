@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class BaseAuthService implements AuthService{
+    DB db = new DB();
     @Override
     public void start() {
         System.out.println("Сервис запущен");
@@ -12,8 +13,8 @@ public class BaseAuthService implements AuthService{
 
     @Override
     public String getNickByLoginPass(String login, String password) {
-        DB.getConnection();
-        ResultSet sqlUsers = DB.read("select * from `users` where `login` = '" + login + "'");
+        db.getConnection();
+        ResultSet sqlUsers = db.read("select * from `users` where `login` = '" + login + "'");
         while (true) {
             try {
                 if (!sqlUsers.next()) break;
@@ -25,17 +26,17 @@ public class BaseAuthService implements AuthService{
                 throwables.printStackTrace();
             }
         }
-        DB.closeConnection();
+        db.closeConnection();
         return null;
     }
 
     @Override
     public boolean rename(String newNick, String login) {
         int isok = 0;
-        DB.getConnection();
-        isok = DB.update("update `users` set `nickname` = '" + newNick + "' where `login` = '" + login + "'");
+        db.getConnection();
+        isok = db.update("update `users` set `nickname` = '" + newNick + "' where `login` = '" + login + "'");
         System.out.println("rename ok: " + isok);
-        DB.closeConnection();
+        db.closeConnection();
         if (isok == 1) {
             return true;
         }

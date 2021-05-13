@@ -3,10 +3,10 @@ package server;
 import java.sql.*;
 
 public class DB {
-    private static Connection sqlConnection;
-    private static Statement statement;
+    private Connection sqlConnection;
+    private Statement statement;
 
-    public static void getConnection() {
+    public void getConnection() {
         try {
             sqlConnection = DriverManager.getConnection(Config.SQL_URL, Config.SQL_USER, Config.SQL_PASS);
             statement = sqlConnection.createStatement();
@@ -14,7 +14,7 @@ public class DB {
             throwables.printStackTrace();
         }
     }
-    public static void closeConnection() {
+    public void closeConnection() {
         try {
             sqlConnection.close();
             statement.close();
@@ -23,7 +23,7 @@ public class DB {
         }
     }
 
-    public static ResultSet read(String query) {
+    public ResultSet read(String query) {
         ResultSet queryResult = null;
         try {
             queryResult = statement.executeQuery(query);
@@ -33,7 +33,7 @@ public class DB {
         return queryResult;
     }
 
-    public static int update(String query) {
+    public int update(String query) {
         int queryResult = 0;
         try {
             queryResult = statement.executeUpdate(query);
