@@ -1,17 +1,20 @@
 package server;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatSrv {
     private List<ClientHandler> clients;
     private AuthService authService;
+    private ExecutorService service = Executors.newFixedThreadPool(10);
 
     public ChatSrv() {
         try(ServerSocket server = new ServerSocket(Config.PORT)) {
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
             authService = new BaseAuthService();
             authService.start();
             clients = new ArrayList<>();
@@ -21,11 +24,12 @@ public class ChatSrv {
                 System.out.println("Клиент подключился");
                 new ClientHandler(this, socket);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (authService != null) {
                 authService.stop();
+                service.shutdown();
             }
         }
     }
@@ -65,6 +69,10 @@ public class ChatSrv {
             }
         }
         return false;
+    }
+
+    public ExecutorService getService() {
+        return service;
     }
 
 }

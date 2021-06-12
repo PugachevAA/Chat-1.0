@@ -11,6 +11,7 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
     private String name = "";
+    private String login = "";
     private boolean isAuth = false;
 
     public ClientHandler(ChatSrv server, Socket socket) {
@@ -19,8 +20,8 @@ public class ClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
-
-            new Thread(() -> {
+            server.getService().execute(() -> {
+                //new Thread(() -> {
                 try {
                     auth();
                     readMsg();
@@ -30,7 +31,8 @@ public class ClientHandler {
                     System.out.println("Клиент отключился");
                     closeConnection();
                 }
-            }).start();
+                //}).start();
+            });
         } catch (IOException e) {
             System.out.println("Проблема при создании обработчика");
             e.printStackTrace();
@@ -39,16 +41,19 @@ public class ClientHandler {
 
     private void auth() throws IOException {
         while (!isAuth) {
-            new Thread(() -> {
+            server.getService().execute(() -> {
+            //new Thread(() -> {
                 long connectTime = System.currentTimeMillis();
                 while (!isAuth) {
                     if (System.currentTimeMillis() - connectTime > 120000) {
+                        if (isAuth) return;
                         System.out.println("Вышвырнули");
                         sendMsg("/end");
                         return;
                     }
                 }
-            }).start();
+            //}).start();
+            });
             String str = in.readUTF();
             // /auth login1 pass1
             if (str.startsWith("/auth")) {
@@ -56,10 +61,12 @@ public class ClientHandler {
                 String login = parts[1];
                 String password = parts[2];
                 String nick = server.getAuthService().getNickByLoginPass(login, password);
+
                 if (nick != null) {
                     if (!server.isNickBysy(nick)) {
                         sendMsg("/authOk " + nick);
                         name = nick;
+                        this.login = login;
                         server.broadcastMsg(name + " зашел в чат");
                         server.subscribe(this);
                         isAuth = true;
@@ -81,6 +88,8 @@ public class ClientHandler {
         while (true) {
 
             String strFromClient = in.readUTF();
+
+
             if (strFromClient.startsWith("/w")) {
                 System.out.println("Персональное сообщение");
                 String[] parts = strFromClient.split(" ", 3);
@@ -98,13 +107,27 @@ public class ClientHandler {
                 }  else {
                     server.personalMsg(name, "Пользователь не найден");
                 }
+            } else if (strFromClient.startsWith("/rename")) {
+                if (isAuth) {
+                    String[] parts = strFromClient.split(" ", 2);
+                    String newName = parts[1];
+                    boolean isOk = server.getAuthService().rename(newName, login);
+                    if (isOk) {
+                        server.broadcastMsg(name + " сменил ник на " + newName);
+                        name = newName;
+                    } else {
+                        server.personalMsg(name, "Ошибка смены никнэйма");
+                    }
+                }
             } else {
                 System.out.println("от " + name + ": " + strFromClient);
                 server.broadcastMsg(name + ": " + strFromClient);
             }
+
             if (strFromClient.equals("/end")) {
                 return;
             }
+
         }
     }
 

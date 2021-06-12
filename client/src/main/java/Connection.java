@@ -27,6 +27,7 @@ public class Connection {
         FXMLLoader loader = Main.getLoader();
         ChatController chatController = (ChatController) loader.getController();
         chatController.setMessage("Соединение с сервером установлено");
+        User user = new User();
 
         new Thread(new Runnable() {
             @Override
@@ -36,6 +37,12 @@ public class Connection {
                         String strFromServer = in.readUTF();
                         if (strFromServer.equalsIgnoreCase("/end")) {
                             break;
+                        }
+                        if (strFromServer.startsWith("/authOk")) {
+                            String userAuth[] = strFromServer.split(" ", 2);
+                            Main.user.setAuth(true);
+                            Main.chatLog.startLogging(Main.user.getLogin());
+                            chatController.setLog(Main.chatLog.readLog());
                         }
                         chatController.setMessage(strFromServer.toString());
                     }
