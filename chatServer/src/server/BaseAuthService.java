@@ -1,14 +1,18 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
 public class BaseAuthService implements AuthService{
+    private static final Logger LOGGER = LogManager.getLogger(BaseAuthService.class.getName());
     DB db = new DB();
     @Override
     public void start() {
-        System.out.println("Сервис запущен");
+        LOGGER.info("Сервис авторизации запущен");
     }
 
     @Override
@@ -45,6 +49,6 @@ public class BaseAuthService implements AuthService{
 
     @Override
     public void stop() {
-        System.out.println("Сервис остановился");
+        LOGGER.info("Сервис авторизации остановился");
     }
 }

@@ -1,5 +1,8 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ChatSrv {
+    private static final Logger LOGGER = LogManager.getLogger(ChatSrv.class.getName());
     private List<ClientHandler> clients;
     private AuthService authService;
     private ExecutorService service = Executors.newFixedThreadPool(10);
@@ -19,9 +23,9 @@ public class ChatSrv {
             authService.start();
             clients = new ArrayList<>();
             while (true) {
-                System.out.println("Ждем подключения клиента");
+                LOGGER.info("Ожидается подключение клиента");
                 Socket socket = server.accept();
-                System.out.println("Клиент подключился");
+                LOGGER.info("Клиент подключился");
                 new ClientHandler(this, socket);
             }
         } catch (Exception e) {
