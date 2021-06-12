@@ -1,11 +1,15 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler {
+    private static final Logger LOGGER = LogManager.getLogger(ClientHandler.class.getName());
     private ChatSrv server;
     private Socket socket;
     private DataInputStream in;
@@ -20,6 +24,7 @@ public class ClientHandler {
             this.socket = socket;
             this.in = new DataInputStream(socket.getInputStream());
             this.out = new DataOutputStream(socket.getOutputStream());
+            LOGGER.info("Клиент подключился");
             server.getService().execute(() -> {
                 //new Thread(() -> {
                 try {
@@ -28,13 +33,13 @@ public class ClientHandler {
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
-                    System.out.println("Клиент отключился");
+                    LOGGER.info("Клиент отключился");
                     closeConnection();
                 }
                 //}).start();
             });
         } catch (IOException e) {
-            System.out.println("Проблема при создании обработчика");
+            LOGGER.error("Ошибка создания обработчика");
             e.printStackTrace();
         }
     }
@@ -57,6 +62,7 @@ public class ClientHandler {
             String str = in.readUTF();
             // /auth login1 pass1
             if (str.startsWith("/auth")) {
+                LOGGER.info("Пришла команда авторизации клиента");
                 String[] parts = str.split(" ");
                 String login = parts[1];
                 String password = parts[2];
@@ -70,16 +76,20 @@ public class ClientHandler {
                         server.broadcastMsg(name + " зашел в чат");
                         server.subscribe(this);
                         isAuth = true;
+                        LOGGER.info("Клиент зарегистрировался под ником " + name);
                         return;
                     } else {
                         sendMsg("УЗ используется");
+                        LOGGER.info("Авторизация не прошла. УЗ занята");
                     }
 
                 } else {
                     sendMsg("Неверные логин/пароль");
+                    LOGGER.info("Авторизация не прошла. Неверные логин или пароль");
                 }
             } else {
                 sendMsg("Зарегистрируйтесь перед отправкой сообщений");
+                LOGGER.info("Попытка отправки сообщения незарегистрированным пользователем");
             }
         }
     }
